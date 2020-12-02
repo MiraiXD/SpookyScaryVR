@@ -1,0 +1,156 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &5349912958223806686
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2512994038294184890}
+  - component: {fileID: 5807891431911782961}
+  - component: {fileID: 15290620309385171}
+  - component: {fileID: 7627757962901238028}
+  - component: {fileID: 1257529513779663012}
+  m_Layer: 0
+  m_Name: Couch
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2512994038294184890
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5349912958223806686}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -3.31, y: 0, z: -11.257}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children:
+  - {fileID: 1372949133756437261}
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5807891431911782961
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5349912958223806686}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f48a5869885766845a904f4b9a088a10, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  interactionTransform: {fileID: 0}
+  bodyEffector: {fileID: 0}
+  rightHandEffector: {fileID: 0}
+  rightShoulderEffector: {fileID: 0}
+  leftHandEffector: {fileID: 0}
+  leftShoulderEffector: {fileID: 0}
+--- !u!114 &15290620309385171
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5349912958223806686}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2dd701f8d35a58429d11de6172cc80e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cost: 1
+--- !u!114 &7627757962901238028
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5349912958223806686}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b195b7e91590b01469402d35a7144103, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cost: 1
+--- !u!114 &1257529513779663012
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5349912958223806686}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4a3b948fcab82494f94d14c0a18c3968, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cost: 1
+--- !u!1001 &1479160399911122150
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 2512994038294184890}
+    m_Modifications:
+    - target: {fileID: -8679921383154817045, guid: 697c5cf6ee85c5946a0bd0268d401ba8, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 3.31
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 697c5cf6ee85c5946a0bd0268d401ba8, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 697c5cf6ee85c5946a0bd0268d401ba8, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 11.257
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 697c5cf6ee85c5946a0bd0268d401ba8, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 697c5cf6ee85c5946a0bd0268d401ba8, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 697c5cf6ee85c5946a0bd0268d401ba8, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 697c5cf6ee85c5946a0bd0268d401ba8, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 697c5cf6ee85c5946a0bd0268d401ba8, type: 3}
+      propertyPath: m_RootOrder
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 697c5cf6ee85c5946a0bd0268d401ba8, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 697c5cf6ee85c5946a0bd0268d401ba8, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 697c5cf6ee85c5946a0bd0268d401ba8, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 697c5cf6ee85c5946a0bd0268d401ba8, type: 3}
+      propertyPath: m_Name
+      value: Akademik_kanapa1-ex-tex
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 697c5cf6ee85c5946a0bd0268d401ba8, type: 3}
+--- !u!4 &1372949133756437261 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 697c5cf6ee85c5946a0bd0268d401ba8, type: 3}
+  m_PrefabInstance: {fileID: 1479160399911122150}
+  m_PrefabAsset: {fileID: 0}
