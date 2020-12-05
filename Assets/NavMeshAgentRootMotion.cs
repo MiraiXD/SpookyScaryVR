@@ -14,7 +14,7 @@ public class NavMeshAgentRootMotion : MonoBehaviour
     public Quaternion targetRotation { get;private set; }
     public float stoppingDistance { get; set; }
     public float speed { get => agent.speed; }
-    public System.Action onDestinationReached, onDestinationNear, onDepart, onFinishedMoving;    
+    public System.Action onDestinationReached, onDestinationNear, onDepart, onStopMoving;    
     private void Start()
     {        
         agent = GetComponent<NavMeshAgent>();
@@ -36,6 +36,13 @@ public class NavMeshAgentRootMotion : MonoBehaviour
         hasTargetRotation = true;
         this.targetRotation = targetRotation;
         SetDestination(destination, stoppingDistance);                
+    }
+    public void Stop()
+    {
+        hasDestination = false;
+        agent.isStopped = true;
+        agent.ResetPath();
+        onStopMoving?.Invoke();
     }
     private void Update()
     {        

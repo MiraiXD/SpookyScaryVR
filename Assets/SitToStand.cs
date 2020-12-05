@@ -6,14 +6,11 @@ using RootMotion.FinalIK;
 public class SitToStand : GoapAction
 {
     private Sittable sittable;
-    private Mortal mortal;
-    private Animator animator;
-    private FullBodyBipedIK ik;
-    private int standToSitHash = Animator.StringToHash("StandToSit");
-    private int sitToStandHash = Animator.StringToHash("SitToStand");
+    private Mortal mortal;    
+    private FullBodyBipedIK ik;    
     private bool finished;
     private bool isSitting;
-    public override void Init(GameObject agent)
+    public override void Init(GoapAgent agent)
     {
         sittable = GetComponent<Sittable>();
         
@@ -22,41 +19,40 @@ public class SitToStand : GoapAction
         AddActionEffect("position", (position) => { return sittable.interactionTransform.position; });
     }
 
-    public override bool CanPerform(GameObject agent)
+    public override bool CanPerform(GoapAgent agent)
     {
         return true;
     }
 
-    public override bool Set(GameObject agent)
+    public override bool Set(GoapAgent agent)
     {
         isSitting = true;
         finished = false;
-        mortal = agent.GetComponent<Mortal>();
-        animator = mortal.animator;
+        mortal = agent.GetComponent<Mortal>();        
         ik = mortal.ik;
-        return animator != null && ik != null;
+        return mortal.animator != null && ik != null;
     }
 
-    public override bool IsInRange(GameObject agent)
+    public override bool IsInRange(GoapAgent agent)
     {
         return true;
     }
 
-    public override bool BeforePerform(GameObject agent)
+    public override bool BeforePerform(GoapAgent agent)
     {        
         return true;
     }
     
-    public override bool Perform(GameObject agent)
+    public override bool Perform(GoapAgent agent)
     {
         if (isSitting)
         {
             isSitting = false;            
-            animator.Play(sitToStandHash);
+            mortal.animator.Play(mortal.sitToStand);
         }
         else
         {
-            var stateInfo = animator.GetCurrentAnimatorStateInfo(0);
+            var stateInfo = mortal.animator.GetCurrentAnimatorStateInfo(0);
 
             if (stateInfo.normalizedTime <= 0.4f && stateInfo.normalizedTime >= 0f)
             {
@@ -73,7 +69,7 @@ public class SitToStand : GoapAction
         return true;
     }
 
-    public override bool AfterPerform(GameObject agent)
+    public override bool AfterPerform(GoapAgent agent)
     {
         ik.solver.bodyEffector.positionWeight = 0f;
         ik.solver.leftShoulderEffector.positionWeight = 0f;
@@ -87,12 +83,12 @@ public class SitToStand : GoapAction
         return true;
     }
 
-    public override bool IsFinished(GameObject agent)
+    public override bool IsFinished(GoapAgent agent)
     {
         return finished;
     }
 
-    public override bool Abort(GameObject agent)
+    public override bool Abort(GoapAgent agent)
     {
         return true;
     }

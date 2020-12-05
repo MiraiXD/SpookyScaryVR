@@ -4,16 +4,16 @@ using UnityEngine;
 
 public class RunAndHide : GoapAction
 {
-    private GameObject agent;
+    private GoapAgent agent;
     private Mortal mortal;
     private NavMeshAgentRootMotion navMeshAgent;
     private bool destinationReached;
-    public override bool CanPerform(GameObject agent)
+    public override bool CanPerform(GoapAgent agent)
     {
         return true;
     }
 
-    public override void Init(GameObject agent)
+    public override void Init(GoapAgent agent)
     {        
         this.agent = agent;
         navMeshAgent = agent.GetComponent<NavMeshAgentRootMotion>();
@@ -21,29 +21,29 @@ public class RunAndHide : GoapAction
         AddActionEffect("threat", (threat) => { float t = (float)threat; t -= 0.5f; return t; });
     }
 
-    public override bool IsFinished(GameObject agent)
+    public override bool IsFinished(GoapAgent agent)
     {
         return destinationReached;
     }
 
-    public override bool IsInRange(GameObject agent)
+    public override bool IsInRange(GoapAgent agent)
     {
         return true;
     }
 
-    public override bool Perform(GameObject agent)
+    public override bool Perform(GoapAgent agent)
     {
         return true;
     }
 
-    public override bool Set(GameObject agent)
+    public override bool Set(GoapAgent agent)
     {
         destinationReached = false;
         navMeshAgent.onDestinationReached += OnDestinationReached;
         return true;
     }
 
-    public override bool AfterPerform(GameObject agent)
+    public override bool AfterPerform(GoapAgent agent)
     {
         navMeshAgent.onDestinationReached -= OnDestinationReached;        
         return true;
@@ -54,12 +54,12 @@ public class RunAndHide : GoapAction
         destinationReached = true;
     }
 
-    public override bool BeforePerform(GameObject agent)
+    public override bool BeforePerform(GoapAgent agent)
     {
         throw new System.NotImplementedException();
     }
 
-    public override bool Abort(GameObject agent)
+    public override bool Abort(GoapAgent agent)
     {
         throw new System.NotImplementedException();
     }

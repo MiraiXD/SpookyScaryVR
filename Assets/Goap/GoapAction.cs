@@ -11,15 +11,20 @@ public abstract class GoapAction : MonoBehaviour
     protected Quaternion targetRotation { get; set; }
     public bool hasTargetRotation { get; set; }
 
-    public abstract void Init(GameObject agent);
-    public abstract bool CanPerform(GameObject agent);
-    public abstract bool Set(GameObject agent);
-    public abstract bool IsInRange(GameObject agent);
-    public abstract bool BeforePerform(GameObject agent);
-    public abstract bool Perform(GameObject agent);
-    public abstract bool AfterPerform(GameObject agent);    
-    public abstract bool IsFinished(GameObject agent);
-    public abstract bool Abort(GameObject agent);
+    public abstract void Init(GoapAgent agent);
+    public abstract bool CanPerform(GoapAgent agent);
+    public abstract bool Set(GoapAgent agent);
+    public abstract bool IsInRange(GoapAgent agent);
+    public abstract bool BeforePerform(GoapAgent agent);
+    public abstract bool Perform(GoapAgent agent);
+    public abstract bool AfterPerform(GoapAgent agent);    
+    public abstract bool IsFinished(GoapAgent agent);
+    public abstract bool Abort(GoapAgent agent);
+    public virtual bool Traverse(GoapAgent agent)
+    {
+        agent.dataProvider.MoveAgent(this);
+        return true;
+    }
     public virtual Vector3 GetTargetPosition()
     {
         return targetPosition;

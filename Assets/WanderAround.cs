@@ -5,56 +5,55 @@ using UnityEngine;
 public class WanderAround : GoapAction
 {    
     private float timer;
-    private Animator animator;
-    private int idleHash = Animator.StringToHash("Idle");
-    public override bool Abort(GameObject agent )
+    private Mortal mortal;    
+    public override bool Abort(GoapAgent agent )
     {
         return true;
     }
 
-    public override bool AfterPerform(GameObject agent)
+    public override bool AfterPerform(GoapAgent agent)
     {
         return true;
     }
 
-    public override bool BeforePerform(GameObject agent )
+    public override bool BeforePerform(GoapAgent agent )
     {         
-        animator.CrossFade(idleHash, 0.1f);
+        mortal.animator.CrossFade(mortal.idle, 0.1f);
         return true;
     }
 
-    public override bool Set(GameObject agent )
+    public override bool Set(GoapAgent agent )
     {
         timer = 0f;
         targetPosition = NavMeshAgentRootMotion.GetRandomPositionOnNavMesh(agent.transform.position, 3f, -1);
         return true;
     }
 
-    public override bool CanPerform(GameObject agent )
+    public override bool CanPerform(GoapAgent agent )
     {
         return true;
     }
 
-    public override void Init(GameObject agent )
+    public override void Init(GoapAgent agent )
     {        
-        animator = agent.GetComponentInChildren<Animator>();
+        mortal = agent.GetComponentInChildren<Mortal>();
         AddPreCondition("isSitting", (isSitting) => { return (bool)isSitting == false; });
         AddActionEffect("fun", (fun) => { return Mathf.Clamp01((float)(fun) + 0.1f); });
         AddActionEffect("energy",(energy)=>{ return 0f; });
     }
 
-    public override bool IsFinished(GameObject agent)
+    public override bool IsFinished(GoapAgent agent)
     {        
         return timer >= 0f;
     }
 
-    public override bool IsInRange(GameObject agent)
+    public override bool IsInRange(GoapAgent agent)
     {
         //print((destination - agent.transform.position).magnitude < 0.1f);
         return (targetPosition - agent.transform.position).magnitude < 0.1f;
     }
 
-    public override bool Perform(GameObject agent )
+    public override bool Perform(GoapAgent agent )
     {        
         timer += Time.deltaTime;
         return true;

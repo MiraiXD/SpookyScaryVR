@@ -11,7 +11,7 @@ public class GoapPlanner
     {
     }
 
-    public Queue<GoapAction> Plan(GameObject agent, GoapAction[] availableActions, Dictionary<string, object> worldStates, Goal goal)
+    public Queue<GoapAction> Plan(GoapAgent agent, GoapAction[] availableActions, Dictionary<string, object> worldStates, Goal goal)
     {
         List<GoapAction> usableActions = new List<GoapAction>();
         foreach (var action in availableActions)

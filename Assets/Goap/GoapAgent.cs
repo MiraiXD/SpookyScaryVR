@@ -7,7 +7,7 @@ public delegate bool Condition(object obj);
 public delegate object ActionEffect(object obj);
 public interface IGoapDataProvider
 {
-    Goal GetGoal();
+    Goal CreateGoal();
     Dictionary<string, object> GetStates();
     void PlanFound(Queue<GoapAction> plan, Goal goal);
     void PlanNotFound(Goal goal);
@@ -44,7 +44,7 @@ public class GoapAgent : MonoBehaviour
 {
     private FSM fsm;
     private FSMState idleState, moveState, performState;
-    private IGoapDataProvider dataProvider;
+    public IGoapDataProvider dataProvider { get; private set; }
     private GoapPlanner planner;
     private GoapAction[] actions;
     private Queue<GoapAction> currentPlan;
@@ -57,7 +57,7 @@ public class GoapAgent : MonoBehaviour
         this.planner = planner;
         CreateIdleState();
         CreatePerformState();
-        CreateMoveState();
+        //CreateMoveState();
 
         fsm.PushState(idleState);
     }
@@ -69,10 +69,10 @@ public class GoapAgent : MonoBehaviour
     {
         idleState = (fsm, agent) =>
         {
-            Goal goal = dataProvider.GetGoal();
+            Goal goal = dataProvider.CreateGoal();
             Dictionary<string, object> states = dataProvider.GetStates();
 
-            currentPlan = planner.Plan(agent, actions, states, goal);
+            currentPlan = planner.Plan(this, actions, states, goal);
             if (currentPlan != null)
             {
                 dataProvider.PlanFound(currentPlan, goal);
@@ -101,9 +101,9 @@ public class GoapAgent : MonoBehaviour
         {
             // invokes ActionFinished on data provider to let him apply the effects of the action
             // also removes it from the queue to proceed with the next action
-            if (currentPerformedAction != null && currentPerformedAction.IsFinished(agent))
+            if (currentPerformedAction != null && currentPerformedAction.IsFinished(this))
             {
-                if (!currentPerformedAction.AfterPerform(agent)) { AbortPlan(); return; }
+                if (!currentPerformedAction.AfterPerform(this)) { AbortPlan(); return; }
                 dataProvider.ActionFinished(currentPerformedAction);
                 currentPlan.Dequeue();
                 currentPerformedAction = null;
@@ -120,13 +120,13 @@ public class GoapAgent : MonoBehaviour
                     if (!isSet)
                     {
                         isSet = true;
-                        if (!currentPerformedAction.Set(agent)) { AbortPlan(); return; }
+                        if (!currentPerformedAction.Set(this)) { AbortPlan(); return; }
                     }
 
-                    if (currentPerformedAction.IsInRange(agent))
+                    if (currentPerformedAction.IsInRange(this))
                     {
                         isPerforming = true;
-                        if (!currentPerformedAction.BeforePerform(agent))
+                        if (!currentPerformedAction.BeforePerform(this))
                         {
                             AbortPlan(); return;
                         }
@@ -135,17 +135,19 @@ public class GoapAgent : MonoBehaviour
                     else
                     {
                         //currentPerformedAction = null;
-                        fsm.PushState(moveState);
+                        //fsm.PushState(moveState);
+                        if(!currentPerformedAction.Traverse(this)) AbortPlan();
                         return;
                     }
                 }
-                if (currentPerformedAction.IsInRange(agent))
+                if (currentPerformedAction.IsInRange(this))
                 {
-                    if (!currentPerformedAction.Perform(agent)) { AbortPlan(); return; }
+                    if (!currentPerformedAction.Perform(this)) { AbortPlan(); return; }
                 }
                 else
                 {
-                    fsm.PushState(moveState);
+                    //fsm.PushState(moveState);
+                    if(!currentPerformedAction.Traverse(this)) AbortPlan();
                 }
             }
             else
@@ -156,12 +158,12 @@ public class GoapAgent : MonoBehaviour
             }
         };
     }
-    private void CreateMoveState()
-    {
-        moveState = (fsm, agent) =>
-            {
-                if (dataProvider.MoveAgent(currentPlan.Peek()))
-                    fsm.PopState();
-            };
-    }
+    //private void CreateMoveState()
+    //{
+    //    moveState = (fsm, agent) =>
+    //        {
+    //            if (dataProvider.MoveAgent(currentPlan.Peek()))
+    //                fsm.PopState();
+    //        };
+    //}
 }

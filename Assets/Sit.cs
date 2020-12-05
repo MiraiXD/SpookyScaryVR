@@ -5,50 +5,50 @@ using UnityEngine;
 public class Sit : GoapAction
 {
     private float sitTimer;
-    public override void Init(GameObject agent)
+    public override void Init(GoapAgent agent)
     {
         AddPreCondition("isSitting", (isSitting) => { return (bool)isSitting == true; });
-        AddActionEffect("energy", (energy) => { return Mathf.Clamp01((float)energy + 0.5f); });
+        AddActionEffect("energy", (energy) => { return (float)energy + 0.5f; });
     }
 
-    public override bool CanPerform(GameObject agent)
+    public override bool CanPerform(GoapAgent agent)
     {
         return true;
     }
 
-    public override bool Set(GameObject agent)
+    public override bool Set(GoapAgent agent)
     {
         sitTimer = 0f;
         return true;
     }
 
-    public override bool IsInRange(GameObject agent)
+    public override bool IsInRange(GoapAgent agent)
     {
         return true;
     }
 
-    public override bool BeforePerform(GameObject agent)
+    public override bool BeforePerform(GoapAgent agent)
     {
         return true;
     }
 
-    public override bool Perform(GameObject agent)
+    public override bool Perform(GoapAgent agent)
     {
         sitTimer += Time.deltaTime;
         return true;
     }
 
-    public override bool AfterPerform(GameObject agent)
+    public override bool AfterPerform(GoapAgent agent)
     {
         return true;
     }
 
-    public override bool IsFinished(GameObject agent)
+    public override bool IsFinished(GoapAgent agent)
     {
         return sitTimer >= 5f;
     }
 
-    public override bool Abort(GameObject agent)
+    public override bool Abort(GoapAgent agent)
     {
         return true;
     }
