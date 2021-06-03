@@ -8,11 +8,7 @@ public class RunAndHide : GoapAction
     private Mortal mortal;
     private NavMeshAgentRootMotion navMeshAgent;
     private bool destinationReached;
-    public override bool CanPerform(GoapAgent agent)
-    {
-        return true;
-    }
-
+    
     public override void Init(GoapAgent agent)
     {        
         this.agent = agent;
@@ -25,17 +21,7 @@ public class RunAndHide : GoapAction
     {
         return destinationReached;
     }
-
-    public override bool IsInRange(GoapAgent agent)
-    {
-        return true;
-    }
-
-    public override bool Perform(GoapAgent agent)
-    {
-        return true;
-    }
-
+    
     public override bool Set(GoapAgent agent)
     {
         destinationReached = false;
@@ -43,7 +29,7 @@ public class RunAndHide : GoapAction
         return true;
     }
 
-    public override bool AfterPerform(GoapAgent agent)
+    public override bool EndPerform(GoapAgent agent)
     {
         navMeshAgent.onDestinationReached -= OnDestinationReached;        
         return true;
@@ -53,12 +39,7 @@ public class RunAndHide : GoapAction
     {
         destinationReached = true;
     }
-
-    public override bool BeforePerform(GoapAgent agent)
-    {
-        throw new System.NotImplementedException();
-    }
-
+    
     public override bool Abort(GoapAgent agent)
     {
         throw new System.NotImplementedException();

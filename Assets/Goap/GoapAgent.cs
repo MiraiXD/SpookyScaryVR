@@ -92,6 +92,9 @@ public class GoapAgent : MonoBehaviour
         dataProvider.PlanAborted(currentPerformedAction);
         fsm.PopState();
         fsm.PushState(idleState);
+        currentPerformedAction = null;
+        isPerforming = false;
+        isSet = false;
     }
     private bool isPerforming = false;
     private bool isSet = false;
@@ -103,7 +106,7 @@ public class GoapAgent : MonoBehaviour
             // also removes it from the queue to proceed with the next action
             if (currentPerformedAction != null && currentPerformedAction.IsFinished(this))
             {
-                if (!currentPerformedAction.AfterPerform(this)) { AbortPlan(); return; }
+                if (!currentPerformedAction.EndPerform(this)) { AbortPlan(); return; }
                 dataProvider.ActionFinished(currentPerformedAction);
                 currentPlan.Dequeue();
                 currentPerformedAction = null;
@@ -114,23 +117,25 @@ public class GoapAgent : MonoBehaviour
             if (currentPlan.Count > 0)
             {
                 GoapAction action = currentPlan.Peek();
+                
                 if (!isPerforming)
                 {
                     currentPerformedAction = action;
                     if (!isSet)
                     {
                         isSet = true;
+                        currentPerformedAction.ResetAction();
                         if (!currentPerformedAction.Set(this)) { AbortPlan(); return; }
                     }
 
                     if (currentPerformedAction.IsInRange(this))
                     {
                         isPerforming = true;
-                        if (!currentPerformedAction.BeforePerform(this))
+                        if (!currentPerformedAction.BeginPerform(this))
                         {
                             AbortPlan(); return;
                         }
-                        return;
+                        return; // return so that the loop perform begins in the next frame
                     }
                     else
                     {
@@ -142,7 +147,7 @@ public class GoapAgent : MonoBehaviour
                 }
                 if (currentPerformedAction.IsInRange(this))
                 {
-                    if (!currentPerformedAction.Perform(this)) { AbortPlan(); return; }
+                    if (!currentPerformedAction.LoopPerform(this)) { AbortPlan(); return; }
                 }
                 else
                 {

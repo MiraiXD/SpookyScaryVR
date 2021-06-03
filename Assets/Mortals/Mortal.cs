@@ -8,7 +8,7 @@ using System.Linq;
 [RequireComponent(typeof(NavMeshAgentRootMotion))]
 public class Mortal : MonoBehaviour, IGoapDataProvider
 {
-    public Mood mood = new Mood();
+    public Mood mood;
     public Animator animator { get; private set; }
 
     //animator hashes
@@ -22,15 +22,22 @@ public class Mortal : MonoBehaviour, IGoapDataProvider
     private ForwardAnimatorMove forwardAnimatorMove;
     private GoapAgent goapAgent;
     private GoapAction[] availableActions;
+
+    private Queue<string> needs;
     public Goal CreateGoal()
     {
         Goal goal = new Goal(0);
-        goal.AddSubGoal("energy", (energy) => { return (float)energy > 0.4f; });
-        //if (mood.energy.value == 0f)
-        //    goal.AddSubGoal("energy", (energy) => { return (float)energy > 0f; });        
-        //else
-        //    goal.AddSubGoal("fun", (fun) => { return (float)fun > 0f; });
+        if (needs.Count == 0)        
+        {            
+            foreach(var need in mood.GetBiggestNeeds())
+            {
+                needs.Enqueue(need.Key);
+            }
+        }
+        string biggestNeed = needs.Dequeue();
 
+        print("BiggestNeed: " + biggestNeed);
+        goal.AddSubGoal(biggestNeed, (need)=> { return (float)need > mood.GetNeed(biggestNeed).Value; });        
         return goal;
     }
     public Dictionary<string, object> GetStates()
@@ -39,20 +46,25 @@ public class Mortal : MonoBehaviour, IGoapDataProvider
     }
     public void PlanFound(Queue<GoapAction> plan, Goal goal)
     {
-
+        foreach(var a in plan)
+        {
+            print(a.GetType());
+        }
     }
 
     public void PlanNotFound(Goal goal)
-    {
+    {     
         moveAgent.Stop(); // stop moving 
     }
 
     public void PlanFinished()
     {
+        needs.Clear(); // prepare for next use
     }
 
     public void PlanAborted(GoapAction abortedAction)
     {
+        print("ABORTED " + gameObject);
         moveAgent.Stop(); // stop moving 
     }
 
@@ -61,7 +73,7 @@ public class Mortal : MonoBehaviour, IGoapDataProvider
     public float stoppingDistance { get; set; }
     public bool MoveAgent(GoapAction action)
     {
-        if (!isMoving && !destinationReached)// && Time.frameCount % 30 == 0))
+        if (!isMoving && !destinationReached)
         {
             if (action.hasTargetRotation) moveAgent.SetDestinationAndTargetRotation(action.GetTargetPosition(), action.GetTargetRotation(), stoppingDistance);
             else { moveAgent.SetDestination(action.GetTargetPosition(), stoppingDistance);}
@@ -69,8 +81,9 @@ public class Mortal : MonoBehaviour, IGoapDataProvider
 
         if (destinationReached) // prepare for next movement
         {
+            print("hehmeh " + gameObject);
             isMoving = false;
-            destinationReached = false;
+            destinationReached = false;            
             return true;
         }
         else return false;
@@ -94,9 +107,12 @@ public class Mortal : MonoBehaviour, IGoapDataProvider
         moveAgent.onDestinationReached += OnDestinationReached;
         moveAgent.onStopMoving += OnStopMoving;
 
+        mood = new Mood();
+        needs = new Queue<string>();
+
         goapAgent = GetComponent<GoapAgent>();
         availableActions = FindObjectsOfType<GoapAction>().Where(action => action.GetComponentInParent<Mortal>() == null || action.GetComponentInParent<Mortal>() == this).ToArray();
-        foreach (var action in availableActions) action.Init(goapAgent);
+        foreach (var action in availableActions) { action.Init(goapAgent); }
         goapAgent.Init(this, availableActions, new GoapPlanner());
     }
 
@@ -110,19 +126,20 @@ public class Mortal : MonoBehaviour, IGoapDataProvider
     }
 
     private void OnDestinationReached()
-    {
+    {        
         isMoving = false;
         destinationReached = true;
-        
+        print("Destination reached");
     }
 
     private void OnDestinationNear()
     {        
-        animator.CrossFadeInFixedTime(idle, 0.19f);///moveAgent.speed);
+        //animator.CrossFadeInFixedTime(idle, 0.1f);///moveAgent.speed);
     }
 
     private void OnDepart()
     {
+        print("OnDepart " + gameObject);
         if (!isMoving)
         {
             isMoving = true;
@@ -132,12 +149,15 @@ public class Mortal : MonoBehaviour, IGoapDataProvider
     }
     private void OnStopMoving()
     {
-        animator.CrossFadeInFixedTime(idle, 0.19f);///moveAgent.speed);
+        print("Destination reached " +gameObject);
+        isMoving = false;
+        destinationReached = false;
+        animator.CrossFadeInFixedTime(idle, 0.1f);///moveAgent.speed);
     }
-    private bool walk = true;
     private void Update()
     {
         goapAgent.UpdateAgent(gameObject);
-
+        mood.UpdateMood(Time.deltaTime);
     }
+    
 }

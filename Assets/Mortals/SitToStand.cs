@@ -18,12 +18,10 @@ public class SitToStand : GoapAction
         AddActionEffect("isSitting", (isSitting) => { return false; });
         AddActionEffect("position", (position) => { return sittable.interactionTransform.position; });
     }
-
-    public override bool CanPerform(GoapAgent agent)
+    public override bool IsInRange(GoapAgent agent)
     {
         return true;
     }
-
     public override bool Set(GoapAgent agent)
     {
         isSitting = true;
@@ -32,23 +30,13 @@ public class SitToStand : GoapAction
         ik = mortal.ik;
         return mortal.animator != null && ik != null;
     }
-
-    public override bool IsInRange(GoapAgent agent)
-    {
-        return true;
-    }
-
-    public override bool BeforePerform(GoapAgent agent)
-    {        
-        return true;
-    }
     
-    public override bool Perform(GoapAgent agent)
+    public override bool LoopPerform(GoapAgent agent)
     {
         if (isSitting)
         {
             isSitting = false;            
-            mortal.animator.Play(mortal.sitToStand);
+            mortal.animator.Play(mortal.sitToStand);            
         }
         else
         {
@@ -62,14 +50,14 @@ public class SitToStand : GoapAction
                 ik.solver.rightShoulderEffector.positionWeight = weight;
                 //ik.solver.leftHandEffector.positionWeight = weight;
                 //ik.solver.rightHandEffector.positionWeight = weight;                
-            }
+            }            
             if (stateInfo.normalizedTime >= 1f) finished = true;
         }
 
         return true;
     }
 
-    public override bool AfterPerform(GoapAgent agent)
+    public override bool EndPerform(GoapAgent agent)
     {
         ik.solver.bodyEffector.positionWeight = 0f;
         ik.solver.leftShoulderEffector.positionWeight = 0f;

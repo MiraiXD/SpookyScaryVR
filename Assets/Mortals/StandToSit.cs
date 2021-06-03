@@ -5,17 +5,22 @@ using RootMotion.FinalIK;
 public class StandToSit : GoapAction
 {
     private Sittable sittable;
+    private Sit sitAction;
     private Mortal mortal;    
     private FullBodyBipedIK ik;    
-    private bool finished;
+    
     public override bool CanPerform(GoapAgent agent)
     {
         return sittable.isFree;
     }
-
+    public override float GetCost(GoapAgent agent)
+    {
+        return 1f;// (sittable.transform.position - agent.transform.position).magnitude / sitAction.energyGain;
+    }
     public override void Init(GoapAgent agent)
     {
         sittable = GetComponent<Sittable>();
+        sitAction = GetComponent<Sit>();
         targetPosition = sittable.interactionTransform.position;
         targetRotation = sittable.interactionTransform.rotation;
         hasTargetRotation = true;
@@ -24,25 +29,28 @@ public class StandToSit : GoapAction
         AddActionEffect("isSitting", (isSitting) => { return true; });
         AddActionEffect("position", (position) => { return sittable.interactionTransform.position; });
     }
+    public override bool Set(GoapAgent agent)
+    {        
+        isSitting = false;
+        return true;
+    }
+    
     public override bool Traverse(GoapAgent agent)
     {
         if (sittable.isFree)
-        {
-            return base.Traverse(agent);
+        {            
+            base.Traverse(agent);
+            print(isInRange + ", " + agent.gameObject);
+            return true;
         }
         else
+        {            
             return false;
+        }
     }
-    public override bool IsFinished(GoapAgent agent)
-    {
-        return finished;
-    }
-    public override bool IsInRange(GoapAgent agent)
-    {
-        return (agent.transform.position - targetPosition).magnitude < 0.1f && agent.transform.rotation == targetRotation;
-    }
+    
     private bool isSitting;
-    public override bool Perform(GoapAgent agent)
+    public override bool LoopPerform(GoapAgent agent)
     {
         if (!isSitting)
         {
@@ -68,28 +76,16 @@ public class StandToSit : GoapAction
                 //ik.solver.leftHandEffector.positionWeight = weight;
                 //ik.solver.rightHandEffector.positionWeight = weight;                
             }
-            if (stateInfo.normalizedTime >= 1f) finished = true;
+            if (stateInfo.normalizedTime >= 1f) isFinished = true;
         }
 
         return true;
-    }
+    } 
 
-    public override bool AfterPerform(GoapAgent agent)
-    {
-        return true;
-    }
-
-    public override bool Set(GoapAgent agent)
-    {
-        return true;
-    }
-
-    public override bool BeforePerform(GoapAgent agent)
+    public override bool BeginPerform(GoapAgent agent)
     {        
         if (sittable.isFree) {
-            sittable.isFree = false;
-            isSitting = false;
-            finished = false;
+            sittable.isFree = false;                        
             mortal = agent.GetComponent<Mortal>();
             ik = mortal.ik;
             return mortal.animator != null && ik != null;
@@ -102,7 +98,7 @@ public class StandToSit : GoapAction
         if (isSitting)
         {
             isSitting = false;
-            if (mortal.mood.safety.value < 1f) mortal.animator.speed = 1.5f; // stand up faster if in danger 
+            if (mortal.mood.safety.Value < 1f) mortal.animator.speed = 1.5f; // stand up faster if in danger 
             mortal.animator.CrossFade(mortal.sitToStand, 0.1f);
             return false;
         }

@@ -22,13 +22,13 @@ public class GoapPlanner
 
         List<Node> leaves = new List<Node>();
         Node parent = new Node(null, 0f, worldStates, null);
-        bool success = BuildGraph(parent, leaves, usableActions, goal);
+        bool success = BuildGraph(parent, leaves, usableActions, goal, agent);
         if (!success) { Debug.LogError("No plan"); return null; }
-
+       
         Node cheapest = leaves[0];
         foreach (Node node in leaves)
         {
-            if (node.runningCost < cheapest.runningCost) cheapest = node;
+            if (node.cost < cheapest.cost) cheapest = node;
         }
 
         List<GoapAction> actions = new List<GoapAction>();
@@ -45,7 +45,7 @@ public class GoapPlanner
         return plan;
 
     }
-    private bool BuildGraph(Node parent, List<Node> leaves, List<GoapAction> usableActions, Goal goal)
+    private bool BuildGraph(Node parent, List<Node> leaves, List<GoapAction> usableActions, Goal goal, GoapAgent agent)
     {
         bool foundOne = false;
         foreach (GoapAction action in usableActions)
@@ -54,7 +54,7 @@ public class GoapPlanner
             {
                 var currentStates = DeepCloneDictionary(parent.states);
                 currentStates = GoapAction.ApplyActionEffects(currentStates, action.ActionEffects);
-                Node node = new Node(parent, parent.runningCost + action.cost, currentStates, action);
+                Node node = new Node(parent, parent.cost + action.GetCost(agent), currentStates, action);
                 if (MatchConditions(currentStates, goal.subgoals))
                 {
                     leaves.Add(node);
@@ -64,7 +64,7 @@ public class GoapPlanner
                 {
                     var usableActionsCopy = new List<GoapAction>(usableActions);
                     usableActionsCopy.Remove(action);
-                    foundOne = BuildGraph(node, leaves, usableActionsCopy, goal);
+                    foundOne = BuildGraph(node, leaves, usableActionsCopy, goal, agent);
                 }
             }
         }
@@ -97,14 +97,14 @@ public class GoapPlanner
     private class Node
     {
         public Node parent;
-        public float runningCost;
+        public float cost;
         public Dictionary<string, object> states;
         public GoapAction action;
 
         public Node(Node parent, float runningCost, Dictionary<string, object> states, GoapAction action)
         {
             this.parent = parent;
-            this.runningCost = runningCost;
+            this.cost = runningCost;
             this.states = states;
             this.action = action;
         }

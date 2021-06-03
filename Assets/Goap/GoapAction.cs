@@ -5,25 +5,35 @@ using UnityEngine;
 public abstract class GoapAction : MonoBehaviour
 {
     public Dictionary<string, Condition> PreConditions { get; } = new Dictionary<string, Condition>();
-    public Dictionary<string, ActionEffect> ActionEffects { get; } = new Dictionary<string, ActionEffect>();    
-    public float cost = 1f;
+    public Dictionary<string, ActionEffect> ActionEffects { get; } = new Dictionary<string, ActionEffect>();        
     protected Vector3 targetPosition { get; set; }
     protected Quaternion targetRotation { get; set; }
     public bool hasTargetRotation { get; set; }
 
-    public abstract void Init(GoapAgent agent);
-    public abstract bool CanPerform(GoapAgent agent);
-    public abstract bool Set(GoapAgent agent);
-    public abstract bool IsInRange(GoapAgent agent);
-    public abstract bool BeforePerform(GoapAgent agent);
-    public abstract bool Perform(GoapAgent agent);
-    public abstract bool AfterPerform(GoapAgent agent);    
-    public abstract bool IsFinished(GoapAgent agent);
-    public abstract bool Abort(GoapAgent agent);
+    protected bool isInRange = false;
+    protected bool isFinished = false;
+    public virtual void Init(GoapAgent agent) { }
+    public virtual bool CanPerform(GoapAgent agent) { return true; }
+    public virtual bool Set(GoapAgent agent) { return true; }
+    public virtual bool BeginPerform(GoapAgent agent) { return true; }
+    public virtual bool LoopPerform(GoapAgent agent) { return true; }
+    public virtual bool EndPerform(GoapAgent agent) { return true; }
+    public virtual bool IsFinished(GoapAgent agent) { return isFinished; }
+    public virtual bool Abort(GoapAgent agent) { return true; }
+    public virtual bool IsInRange(GoapAgent agent)
+    {
+        return isInRange;
+    }
     public virtual bool Traverse(GoapAgent agent)
     {
-        agent.dataProvider.MoveAgent(this);
+        isInRange = agent.dataProvider.MoveAgent(this);
         return true;
+    }
+    public virtual float GetCost(GoapAgent agent) { return 0f; }
+    public void ResetAction()
+    {        
+        isInRange = false;
+        isFinished = false;
     }
     public virtual Vector3 GetTargetPosition()
     {

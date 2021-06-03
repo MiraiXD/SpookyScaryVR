@@ -4,48 +4,33 @@ using UnityEngine;
 
 public class Sit : GoapAction
 {
+    public float energyGain = 0.2f;
     private float sitTimer;
     public override void Init(GoapAgent agent)
     {
         AddPreCondition("isSitting", (isSitting) => { return (bool)isSitting == true; });
-        AddActionEffect("energy", (energy) => { return (float)energy + 0.5f; });
+        AddActionEffect("energy", (energy) => { return (float)energy + energyGain; });
     }
-
-    public override bool CanPerform(GoapAgent agent)
-    {
-        return true;
-    }
-
-    public override bool Set(GoapAgent agent)
-    {
-        sitTimer = 0f;
-        return true;
-    }
-
     public override bool IsInRange(GoapAgent agent)
     {
         return true;
     }
-
-    public override bool BeforePerform(GoapAgent agent)
-    {
+    public override bool BeginPerform(GoapAgent agent)
+    {        
+        sitTimer = 0f;
         return true;
     }
-
-    public override bool Perform(GoapAgent agent)
+    
+    public override bool LoopPerform(GoapAgent agent)
     {
         sitTimer += Time.deltaTime;
         return true;
     }
-
-    public override bool AfterPerform(GoapAgent agent)
-    {
-        return true;
-    }
-
+    
     public override bool IsFinished(GoapAgent agent)
     {
-        return sitTimer >= 5f;
+        if (sitTimer >= 2f) return true;
+        else return false;
     }
 
     public override bool Abort(GoapAgent agent)
