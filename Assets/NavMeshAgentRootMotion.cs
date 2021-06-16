@@ -27,6 +27,7 @@ public class NavMeshAgentRootMotion : MonoBehaviour
         hasDestination = true;
         destinationNear = false;
         this.stoppingDistance = stoppingDistance;
+        this.destination = destination;
         //agent.stoppingDistance = stoppingDistance;
         agent.SetDestination(destination);
         onDepart?.Invoke();
@@ -48,23 +49,27 @@ public class NavMeshAgentRootMotion : MonoBehaviour
     {
         if (hasDestination)
         {
+            // rotates the agent toward its current steering target
             if (agent.steeringTarget != agent.transform.position)
-                agent.transform.rotation = Quaternion.Slerp(agent.transform.rotation, Quaternion.LookRotation((agent.steeringTarget - agent.transform.position).normalized), agent.speed / 10f);
+            {
+                agent.transform.rotation = Quaternion.Slerp(agent.transform.rotation, Quaternion.LookRotation((agent.steeringTarget - agent.transform.position).normalized), agent.speed / 10f);                
+            }
 
             if (!agent.pathPending)
             {
                 if (!destinationNear && agent.remainingDistance <= 0.1f + stoppingDistance) // + agent.stoppingDistance)
                 {
+                    print("NEAR");
                     destinationNear = true;
                     onDestinationNear?.Invoke();
                 }
-                if (agent.remainingDistance <= stoppingDistance)
+                if (agent.remainingDistance <= stoppingDistance || agent.isStopped)
                 {
-                    if (!agent.isStopped) { agent.isStopped = true; agent.ResetPath(); }
+                    if (!agent.isStopped) { agent.isStopped = true; agent.ResetPath(); agent.transform.position = new Vector3(destination.x, agent.transform.position.y, destination.z); }
                     if (!hasTargetRotation)
                     {
                         hasDestination = false;
-                        onDestinationReached?.Invoke();
+                        onDestinationReached?.Invoke();                        
                     }
                     else
                     {

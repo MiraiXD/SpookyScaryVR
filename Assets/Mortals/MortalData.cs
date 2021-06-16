@@ -17,11 +17,11 @@ public class Mood
 {
     public class ImpactMultipliers
     {
-        public const float safety = 1000f;
+        public const float safety = 10f;
         public const float food = 1.5f;
         public const float companionship = 1.1f;
-        public const float fun = 0.5f;
-        public const float energy = 1.2f;
+        public const float fun = 1f;
+        public const float energy = 1f;
     }
     public MoodElement safety;
     public MoodElement food;
@@ -35,9 +35,9 @@ public class Mood
     {        
         safety = new MoodElement(1f,ImpactMultipliers.safety);
         food = new MoodElement(1f,ImpactMultipliers.food);
-        companionship = new MoodElement(.8f,ImpactMultipliers.companionship);
-        fun = new MoodElement(0.8f,ImpactMultipliers.fun);
-        energy = new MoodElement(0.8f,ImpactMultipliers.energy);
+        companionship = new MoodElement(1f,ImpactMultipliers.companionship);
+        fun = new MoodElement(1f,ImpactMultipliers.fun);
+        energy = new MoodElement(0f,ImpactMultipliers.energy);
         isSitting = false;
         position = new Vector3();
 
@@ -52,7 +52,7 @@ public class Mood
         return elements[key];
     }
     public List<KeyValuePair<string,float>> GetBiggestNeeds()
-    {
+    {        
         List<KeyValuePair<string, float>> needs = new List<KeyValuePair<string, float>>();
         needs.Add( new KeyValuePair<string, float>("safety", (1f - safety.Value) * safety.moodImpactMultiplier));
         needs.Add(new KeyValuePair<string, float>("food", (1f - food.Value) * food.moodImpactMultiplier));
@@ -60,11 +60,9 @@ public class Mood
         needs.Add(new KeyValuePair<string, float>("fun", (1f - fun.Value) * fun.moodImpactMultiplier));
         needs.Add(new KeyValuePair<string, float>("energy", (1f - energy.Value) * energy.moodImpactMultiplier));
 
-        needs.Sort((KeyValuePair<string, float> x, KeyValuePair<string, float> y) => { return x.Value.CompareTo(y.Value); });
-        //KeyValuePair<string, float> max = needs_List[0];
-        //foreach (var pair in needs_List) if (pair.Value > max.Value) max = pair;
-
-        ////condition = (value) => { return (float)value > elements[max.Key].Value; };        
+        // sort decreasingly - biggest need will be in the first place
+        needs.Sort((KeyValuePair<string, float> x, KeyValuePair<string, float> y) => { return y.Value.CompareTo(x.Value); });
+        
         return needs;
     }
     public Dictionary<string, object> ToStates()
@@ -93,8 +91,8 @@ public class Mood
     public void UpdateMood(float deltaTime)
     {
         companionship.Value -= deltaTime * 0.01f;
-        //mood.safety.Value -= Time.deltaTime * 0.01f;
-        //mood.food.Value -= Time.deltaTime * 0.01f;
+        //safety.Value -= deltaTime * 0.01f;
+        food.Value -= deltaTime * 0.01f;
         energy.Value -= deltaTime * 0.01f;
         fun.Value -= deltaTime * 0.01f;
     }

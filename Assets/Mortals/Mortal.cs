@@ -17,6 +17,10 @@ public class Mortal : MonoBehaviour, IGoapDataProvider
     public readonly int standToSit = Animator.StringToHash("StandToSit");
     public readonly int sitToStand = Animator.StringToHash("SitToStand");
     public readonly int talk = Animator.StringToHash("Talk");
+    public void SetAnimation(int animationHash, float fixedTransitionDuration)
+    {
+        animator.CrossFadeInFixedTime(animationHash, fixedTransitionDuration);
+    }
     public FullBodyBipedIK ik { get; private set; }
     private NavMeshAgentRootMotion moveAgent;
     private ForwardAnimatorMove forwardAnimatorMove;
@@ -24,20 +28,30 @@ public class Mortal : MonoBehaviour, IGoapDataProvider
     private GoapAction[] availableActions;
 
     private Queue<string> needs;
+    private List<string> failedNeeds;
+    private string currentNeed;
     public Goal CreateGoal()
     {
         Goal goal = new Goal(0);
-        if (needs.Count == 0)        
-        {            
-            foreach(var need in mood.GetBiggestNeeds())
-            {
-                needs.Enqueue(need.Key);
-            }
-        }
-        string biggestNeed = needs.Dequeue();
+        //KeyValuePair<string,float> biggestNeed = mood.GetBiggestNeeds();
+        //if (needs.Count == 0)
+        //{
+        //    foreach (var need in mood.GetBiggestNeed())
+        //    {
+        //        needs.Enqueue(need.Key);
+        //    }
+        //}
+        //string biggestNeed = needs.Dequeue();
 
-        print("BiggestNeed: " + biggestNeed);
-        goal.AddSubGoal(biggestNeed, (need)=> { return (float)need > mood.GetNeed(biggestNeed).Value; });        
+        bool foundNeed = false;
+        foreach (var need in mood.GetBiggestNeeds())
+        {
+            if (!failedNeeds.Contains(need.Key)) { currentNeed = need.Key; foundNeed = true; break; }
+        }
+        if (!foundNeed) Debug.LogError("No need can be satisfied!");
+
+        print("BiggestNeed: " + currentNeed);
+        goal.AddSubGoal(currentNeed, (need) => { return (float)need > mood.GetNeed(currentNeed).Value; });
         return goal;
     }
     public Dictionary<string, object> GetStates()
@@ -46,44 +60,46 @@ public class Mortal : MonoBehaviour, IGoapDataProvider
     }
     public void PlanFound(Queue<GoapAction> plan, Goal goal)
     {
-        foreach(var a in plan)
+        foreach (var a in plan)
         {
             print(a.GetType());
         }
     }
 
     public void PlanNotFound(Goal goal)
-    {     
+    {
+        failedNeeds.Add(currentNeed);
+        if(moveAgent.hasDestination)
         moveAgent.Stop(); // stop moving 
     }
 
     public void PlanFinished()
     {
-        needs.Clear(); // prepare for next use
+        failedNeeds.Clear();// prepare for next use
+        //needs.Clear(); // prepare for next use
     }
 
     public void PlanAborted(GoapAction abortedAction)
     {
-        print("ABORTED " + gameObject);
+        if(moveAgent.hasDestination)
         moveAgent.Stop(); // stop moving 
     }
 
     private bool isMoving = false;
-    private bool destinationReached = false;    
+    private bool destinationReached = false;
     public float stoppingDistance { get; set; }
     public bool MoveAgent(GoapAction action)
     {
         if (!isMoving && !destinationReached)
         {
             if (action.hasTargetRotation) moveAgent.SetDestinationAndTargetRotation(action.GetTargetPosition(), action.GetTargetRotation(), stoppingDistance);
-            else { moveAgent.SetDestination(action.GetTargetPosition(), stoppingDistance);}
+            else { moveAgent.SetDestination(action.GetTargetPosition(), stoppingDistance); }
         }
 
         if (destinationReached) // prepare for next movement
         {
-            print("hehmeh " + gameObject);
             isMoving = false;
-            destinationReached = false;            
+            destinationReached = false;
             return true;
         }
         else return false;
@@ -110,6 +126,8 @@ public class Mortal : MonoBehaviour, IGoapDataProvider
         mood = new Mood();
         needs = new Queue<string>();
 
+        failedNeeds = new List<string>();
+
         goapAgent = GetComponent<GoapAgent>();
         availableActions = FindObjectsOfType<GoapAction>().Where(action => action.GetComponentInParent<Mortal>() == null || action.GetComponentInParent<Mortal>() == this).ToArray();
         foreach (var action in availableActions) { action.Init(goapAgent); }
@@ -126,14 +144,14 @@ public class Mortal : MonoBehaviour, IGoapDataProvider
     }
 
     private void OnDestinationReached()
-    {        
+    {
+        print("REACHED");
         isMoving = false;
         destinationReached = true;
-        print("Destination reached");
     }
 
     private void OnDestinationNear()
-    {        
+    {
         //animator.CrossFadeInFixedTime(idle, 0.1f);///moveAgent.speed);
     }
 
@@ -149,15 +167,16 @@ public class Mortal : MonoBehaviour, IGoapDataProvider
     }
     private void OnStopMoving()
     {
-        print("Destination reached " +gameObject);
+        print("STOPMOVING");
         isMoving = false;
         destinationReached = false;
-        animator.CrossFadeInFixedTime(idle, 0.1f);///moveAgent.speed);
+        if (animator.GetCurrentAnimatorStateInfo(0).shortNameHash != idle)
+            animator.CrossFadeInFixedTime(idle, 0.1f);///moveAgent.speed);
     }
     private void Update()
     {
         goapAgent.UpdateAgent(gameObject);
         mood.UpdateMood(Time.deltaTime);
     }
-    
+
 }
